@@ -1,0 +1,87 @@
+﻿@*@model List<SelectListItem>*@
+@{
+    Layout = "";
+}
+@*<div class="script-tag">
+    <script>
+        function renderShippingOptionInfo(param) {
+            if (param != "") {
+                var _url = '/SelectedShippingPoint/Get?shippingOptionId=' + param;
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("GET", _url, true);
+                xhttp.send();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementById("shippingOptionInfo").innerHTML = this.responseText;
+                    }
+                };
+            }
+            else {
+                document.getElementById("shippingOptionInfo").innerHTML = "";
+            }
+        }
+    </script>
+</div>
+
+<h6>@Loc["Shipping.ShippingPoint.ChooseShippingPoint"]</h6>
+<select class="form-control" name="data[selectedShippingOption]" onchange="renderShippingOptionInfo(value)">
+    @foreach (var shippingOption in Model)
+    {
+        <option value="@shippingOption.Value">@shippingOption.Text</option>
+    }
+</select>
+
+<div id="shippingOptionInfo"></div>*@
+
+<button 
+    type="button"
+    class="btn btn-info packeta-selector-open" 
+    onclick="Packeta.Widget.pick(packetaApiKey, showSelectedPickupPoint, packetaOptions)">
+    @Loc["Shipping.Packeta.ChooseShippingPoint"]
+</button>    
+<div class="packeta-selector-value"></div>
+
+<input name="data[selectedShippingOptionId]" id="PacketaPickupPointId" type="hidden" />
+<input name="data[selectedShippingOptionDescription]" id="PacketaPickupPointDescription" type="hidden" />
+<input name="data[selectedShippingOptionObject]" id="PacketaPickupPointObject" type="hidden" />
+  
+<div class="script-tag">
+    <script src="https://widget.packeta.com/v6/www/js/library.js"></script>
+
+    <script>
+        const packetaApiKey = 'ab451e1c853493e9';
+
+        const packetaOptions = {
+            valueFormat: "\"Packeta\",id,carrierId,carrierPickupPointId,name,city,street"
+        };
+
+        function showSelectedPickupPoint(point) {
+            // Add here an action on pickup point selection
+            const saveElement = document.querySelector(".packeta-selector-value");
+            saveElement.innerText = '';
+            if (point) {
+                console.log("Selected point", point);
+                saveElement.innerText = "Adresa: " + point.name;
+
+                document.getElementById("PacketaPickupPointId").value = point.id;
+                document.getElementById("PacketaPickupPointDescription").value = point.name;
+                document.getElementById("PacketaPickupPointObject").value = JSON.stringify(point);
+            };
+        }
+
+    </script>
+    @*<script>
+        window.onmessage = function dpdHandler(event) {
+            if (event.data.dpdWidget) {
+                document.getElementById("PacketaPickupPointId").value = event.data.dpdWidget.id;
+                document.getElementById("PacketaPickupPointDescription").value = event.data.dpdWidget.pickupPointResult;
+                document.getElementById("PacketaPickupPointObject").value = JSON.stringify(event.data.dpdWidget);
+
+                document.getElementById("shippingOptionInfo").innerHTML = '<div class="alert alert-info" role="alert">' +
+                    '@Loc["Shipping.Packeta.ShippingPointName"]: ' +
+                    event.data.dpdWidget.pickupPointResult +
+                    '</div>';
+            }
+        };
+    </script>*@
+</div>
